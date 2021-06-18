@@ -1,0 +1,25 @@
+﻿@page
+@model ModelAgency.Web.Pages.ApprovalsModel
+@{
+    ViewData["Title"] = "Approvals";
+}
+
+<table>
+    @foreach(var user in Model.Users) {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>
+                        <form asp-page-handler="approve" method="post">
+                            <input type="hidden" name="email" value="@user.Email" />
+                            <button class="btn btn-default">Approve</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form asp-page-handler="reject" method="post">
+                            <input type="hidden" name="email" value="@user.Email" />
+                            <button class="btn btn-default">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+</table>
