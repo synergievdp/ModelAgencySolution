@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -8,6 +9,8 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -19,23 +22,26 @@ using ModelAgency.Web.Data.Entities;
 namespace ModelAgency.Web.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
-    public class RegisterModel : PageModel
+    public class RegisterCustomerModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<RegisterModel> _logger;
+        private readonly ILogger<RegisterCustomerModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IWebHostEnvironment webHost;
 
-        public RegisterModel(
+        public RegisterCustomerModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            ILogger<RegisterCustomerModel> logger,
+            IEmailSender emailSender,
+            IWebHostEnvironment webHost)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            this.webHost = webHost;
         }
 
         [BindProperty]
@@ -62,6 +68,14 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            public string Name { get; set; }
+            public string StreetAddress { get; set; }
+            public string PostalCode { get; set; }
+            public string Country { get; set; }
+            public string KvK { get; set; }
+            public string BTW { get; set; }
+            public IFormFile Logo { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -76,17 +90,32 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { 
-                    UserName = Input.Email, 
-                    Email = Input.Email, 
-                    AccountState = AccountState.Approved 
+                var relativedir = Path.Combine("img", "customers", Input.Name);
+                var dir = Path.Combine(webHost.WebRootPath, relativedir);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                var relative = Path.Combine(relativedir, Input.Logo.FileName);
+                var path = Path.Combine(webHost.WebRootPath, relative);
+                using(var file = System.IO.File.Create(path)) {
+                    Input.Logo.CopyTo(file);
+                }
+                var user = new CustomerUser {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    Name = Input.Name,
+                    StreetAddress = Input.StreetAddress,
+                    PostalCode = Input.PostalCode,
+                    Country = Input.Country,
+                    KvK = Input.KvK,
+                    BTW = Input.BTW,
+                    LogoPath = relative
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Customer"));
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
