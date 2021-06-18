@@ -98,7 +98,7 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
                         Directory.CreateDirectory(dir);
                     var relative = Path.Combine(relativedir, photo.FileName);
                     var path = Path.Combine(webHost.WebRootPath, relative);
-                    photos.Add(new Photo() { Path = path });
+                    photos.Add(new Photo() { Path = relative });
                     using (var file = System.IO.File.Create(path)) {
                         photo.CopyTo(file);
                     }
