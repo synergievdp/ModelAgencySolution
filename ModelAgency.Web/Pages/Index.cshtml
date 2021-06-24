@@ -6,5 +6,13 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @if (User.IsInRole("Admin")) {
+        <a class="nav-link text-dark" asp-page="/Approvals">Approvals</a>
+    }
+
+    @foreach(var user in Model.Models) {
+        @foreach(var photo in user.Photos) {
+<a asp-page="/Profile" asp-route-id="@user.Id"><img src="@photo.Path" alt="image" /></a>
+                }
+            }
 </div>

@@ -1,0 +1,33 @@
+﻿@page
+@model ModelAgency.Web.Pages.EditProfileModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<form asp-route-returnUrl="@Model.ReturnUrl" asp-route-id="@Model.Model.Id" method="post">
+    <div class="form-group">
+        <label asp-for="Model.Name"></label>
+        <input asp-for="Model.Name" class="form-control" />
+        <span asp-validation-for="Model.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Model.DOB"></label>
+        <input asp-for="Model.DOB" class="form-control" />
+        <span asp-validation-for="Model.DOB" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+
+@foreach(var photo in Model.Model.Photos) {
+                <img src="@photo.Path"/>
+                <form method="post" asp-page-handler="delete" asp-route-id="@Model.Model.Id">
+                    <input type="hidden" name="photoid" value="@photo.Id"/>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </form>
+            }
+<form method="post" asp-page-handler="addPhotos" asp-route-id="@Model.Model.Id" enctype="multipart/form-data">
+    <div class="form-group">
+        <input type="file" name="photos" multiple class="form-control"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Photo's</button>
+</form>

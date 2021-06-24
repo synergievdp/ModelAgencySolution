@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ModelAgency.Web.Areas.Identity;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ModelAgency.Web {
@@ -34,8 +37,7 @@ namespace ModelAgency.Web {
 
             services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 
-            services.Configure<IdentityOptions>(options =>
-            {
+            services.Configure<IdentityOptions>(options => {
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = false;
@@ -43,6 +45,11 @@ namespace ModelAgency.Web {
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
             });
+            services.AddAuthorization(options => {
+                options.AddPolicy("ApprovedUsers", policy => policy.RequireClaim("AccountState", "Approved"));
+                options.AddPolicy("PageOwner", policy => policy.Requirements.Add(new PageOwnerRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, PageOwnerHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
