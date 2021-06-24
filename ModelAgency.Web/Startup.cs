@@ -48,8 +48,10 @@ namespace ModelAgency.Web {
             services.AddAuthorization(options => {
                 options.AddPolicy("ApprovedUsers", policy => policy.RequireClaim("AccountState", "Approved"));
                 options.AddPolicy("PageOwner", policy => policy.Requirements.Add(new PageOwnerRequirement()));
+                options.AddPolicy("ApprovedOrOwner", policy => policy.Requirements.Add(new ApprovedOrOwnerRequirement()));
             });
             services.AddSingleton<IAuthorizationHandler, PageOwnerHandler>();
+            services.AddSingleton<IAuthorizationHandler, ApprovedOrOwnerHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

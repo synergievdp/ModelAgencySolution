@@ -11,7 +11,7 @@ using ModelAgency.Web.Data.Entities;
 
 namespace ModelAgency.Web.Pages
 {
-    [Authorize(Policy = "ApprovedUsers")]
+    [Authorize(Policy = "ApprovedOrOwner")]
     public class ProfileModel : PageModel
     {
         private readonly ApplicationDbContext dbContext;
