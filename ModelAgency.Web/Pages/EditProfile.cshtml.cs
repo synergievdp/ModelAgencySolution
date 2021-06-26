@@ -46,7 +46,6 @@ namespace ModelAgency.Web.Pages
 
             Model.Name = name;
             Model.DOB = dob;
-            Model.AccountState = AccountState.Pending;
 
             dbContext.SaveChanges();
             return Page();
@@ -67,7 +66,6 @@ namespace ModelAgency.Web.Pages
                 }
             }
 
-            Model.AccountState = AccountState.Pending;
             dbContext.SaveChanges();
 
             return Page();
@@ -81,7 +79,6 @@ namespace ModelAgency.Web.Pages
             System.IO.File.Delete(Path.Combine(webHost.WebRootPath, photo.Path));
             Model.Photos.Remove(photo);
             dbContext.SaveChanges();
-            Model.AccountState = AccountState.Pending;
 
             return Page();
         }
