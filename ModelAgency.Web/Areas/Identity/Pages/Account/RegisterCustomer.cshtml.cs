@@ -90,15 +90,6 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var relativedir = Path.Combine("img", "customers", Input.Name);
-                var dir = Path.Combine(webHost.WebRootPath, relativedir);
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                var relative = Path.Combine(relativedir, Input.Logo.FileName);
-                var path = Path.Combine(webHost.WebRootPath, relative);
-                using(var file = System.IO.File.Create(path)) {
-                    Input.Logo.CopyTo(file);
-                }
                 var user = new CustomerUser {
                     UserName = Input.Email,
                     Email = Input.Email,
@@ -108,12 +99,22 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
                     Country = Input.Country,
                     KvK = Input.KvK,
                     BTW = Input.BTW,
-                    LogoPath = relative
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    var relativedir = Path.Combine("img", "customers", user.Id);
+                    var dir = Path.Combine(webHost.WebRootPath, relativedir);
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    var relative = Path.Combine(relativedir, Input.Logo.FileName);
+                    var path = Path.Combine(webHost.WebRootPath, relative);
+                    using (var file = System.IO.File.Create(path)) {
+                        Input.Logo.CopyTo(file);
+                    }
+                    await _userManager.UpdateAsync(user);
 
                     await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Customer"));
 

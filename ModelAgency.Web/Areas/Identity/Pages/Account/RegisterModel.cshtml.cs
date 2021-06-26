@@ -90,20 +90,6 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                List<Photo> photos = new();
-                foreach(var photo in Input.Photos) {
-                    var relativedir = Path.Combine("img", "models", Input.Name);
-                    var dir = Path.Combine(webHost.WebRootPath, relativedir);
-                    if (!Directory.Exists(dir))
-                        Directory.CreateDirectory(dir);
-                    var relative = Path.Combine(relativedir, photo.FileName);
-                    var path = Path.Combine(webHost.WebRootPath, relative);
-                    photos.Add(new Photo() { Path = relative });
-                    using (var file = System.IO.File.Create(path)) {
-                        photo.CopyTo(file);
-                    }
-                }
-
                 var user = new ModelUser { 
                     UserName = Input.Email, 
                     Email = Input.Email,
@@ -112,13 +98,27 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
                     PostalCode = Input.PostalCode,
                     Country = Input.Country,
                     PhoneNumber = Input.PhoneNumber,
-                    DOB = Input.DOB,
-                    Photos = photos
+                    DOB = Input.DOB
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    user.Photos = new();
+                    foreach (var photo in Input.Photos) {
+                        var relativedir = Path.Combine("img", "models", user.Id);
+                        var dir = Path.Combine(webHost.WebRootPath, relativedir);
+                        if (!Directory.Exists(dir))
+                            Directory.CreateDirectory(dir);
+                        var relative = Path.Combine(relativedir, photo.FileName);
+                        var path = Path.Combine(webHost.WebRootPath, relative);
+                        user.Photos.Add(new Photo() { Path = relative });
+                        using (var file = System.IO.File.Create(path)) {
+                            photo.CopyTo(file);
+                        }
+                    }
+                    await _userManager.UpdateAsync(user);
 
                     await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Model"));
 
