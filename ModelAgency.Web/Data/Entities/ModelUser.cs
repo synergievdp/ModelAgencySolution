@@ -12,5 +12,6 @@ namespace ModelAgency.Web.Data.Entities {
         public string Country { get; set; }
         public DateTime DOB { get; set; }
         public List<Photo> Photos { get; set; }
+        public List<Invite> Invites { get; set; }
     }
 }

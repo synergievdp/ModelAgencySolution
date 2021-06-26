@@ -10,6 +10,7 @@ namespace ModelAgency.Web.Data {
 
         public DbSet<CustomerUser> Customers { get; set; }
         public DbSet<ModelUser> Models { get; set; }
+        public DbSet<Event> Events { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) {
         }
