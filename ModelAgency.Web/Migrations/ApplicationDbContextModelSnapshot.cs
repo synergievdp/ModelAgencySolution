@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModelAgency.Web.Data;
 
-namespace ModelAgency.Web.Data.Migrations
+namespace ModelAgency.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -256,28 +256,21 @@ namespace ModelAgency.Web.Data.Migrations
 
             modelBuilder.Entity("ModelAgency.Web.Data.Entities.Invite", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("ModelId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("EventId")
+                    b.Property<int>("EventId")
                         .HasColumnType("int");
 
                     b.Property<int>("InviteeAccepted")
                         .HasColumnType("int");
 
-                    b.Property<string>("InviteeId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("OrganizerAccepted")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("ModelId", "EventId");
 
                     b.HasIndex("EventId");
-
-                    b.HasIndex("InviteeId");
 
                     b.ToTable("Invite");
                 });
@@ -420,15 +413,19 @@ namespace ModelAgency.Web.Data.Migrations
                 {
                     b.HasOne("ModelAgency.Web.Data.Entities.Event", "Event")
                         .WithMany("Invites")
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("ModelAgency.Web.Data.Entities.ModelUser", "Invitee")
+                    b.HasOne("ModelAgency.Web.Data.Entities.ModelUser", "Model")
                         .WithMany("Invites")
-                        .HasForeignKey("InviteeId");
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Event");
 
-                    b.Navigation("Invitee");
+                    b.Navigation("Model");
                 });
 
             modelBuilder.Entity("ModelAgency.Web.Data.Entities.Photo", b =>

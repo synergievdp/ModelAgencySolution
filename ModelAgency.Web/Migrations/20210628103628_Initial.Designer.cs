@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModelAgency.Web.Data;
 
-namespace ModelAgency.Web.Data.Migrations
+namespace ModelAgency.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210617123837_Users")]
-    partial class Users
+    [Migration("20210628103628_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -230,6 +230,53 @@ namespace ModelAgency.Web.Data.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("ApplicationUser");
                 });
 
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrganizerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("Private")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizerId");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.Invite", b =>
+                {
+                    b.Property<string>("ModelId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InviteeAccepted")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrganizerAccepted")
+                        .HasColumnType("int");
+
+                    b.HasKey("ModelId", "EventId");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("Invite");
+                });
+
             modelBuilder.Entity("ModelAgency.Web.Data.Entities.Photo", b =>
                 {
                     b.Property<int>("Id")
@@ -355,6 +402,34 @@ namespace ModelAgency.Web.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.Event", b =>
+                {
+                    b.HasOne("ModelAgency.Web.Data.Entities.CustomerUser", "Organizer")
+                        .WithMany("Events")
+                        .HasForeignKey("OrganizerId");
+
+                    b.Navigation("Organizer");
+                });
+
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.Invite", b =>
+                {
+                    b.HasOne("ModelAgency.Web.Data.Entities.Event", "Event")
+                        .WithMany("Invites")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ModelAgency.Web.Data.Entities.ModelUser", "Model")
+                        .WithMany("Invites")
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Model");
+                });
+
             modelBuilder.Entity("ModelAgency.Web.Data.Entities.Photo", b =>
                 {
                     b.HasOne("ModelAgency.Web.Data.Entities.ModelUser", null)
@@ -362,8 +437,20 @@ namespace ModelAgency.Web.Data.Migrations
                         .HasForeignKey("ModelUserId");
                 });
 
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.Event", b =>
+                {
+                    b.Navigation("Invites");
+                });
+
+            modelBuilder.Entity("ModelAgency.Web.Data.Entities.CustomerUser", b =>
+                {
+                    b.Navigation("Events");
+                });
+
             modelBuilder.Entity("ModelAgency.Web.Data.Entities.ModelUser", b =>
                 {
+                    b.Navigation("Invites");
+
                     b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618
