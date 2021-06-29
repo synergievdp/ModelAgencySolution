@@ -32,7 +32,7 @@ namespace ModelAgency.Web.Areas.Admin.Pages
                 dbContext.SaveChanges();
             }
 
-            return LocalRedirect("/Approvals");
+            return LocalRedirect("/Admin/Approvals");
         }
         public IActionResult OnPostReject(string userid) {
             var user = dbContext.Users.First(user => user.Id == userid);
@@ -41,7 +41,7 @@ namespace ModelAgency.Web.Areas.Admin.Pages
                 dbContext.SaveChanges();
             }
 
-            return LocalRedirect("/Approvals");
+            return LocalRedirect("/Admin/Approvals");
         }
     }
 }
