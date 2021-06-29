@@ -16,7 +16,11 @@
     @if (SignInManager.IsSignedIn(User)) {
         <li class="nav-item">
             @*<a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>*@
-            <a class="nav-link text-dark" asp-page="/Profile" asp-route-id="@User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value" title="Profile">Hello @User.Identity.Name!</a>
+            @if (User.IsInRole("Model")) {
+                <a class="nav-link text-dark" asp-area="Model" asp-page="/Profile/Index" asp-route-id="@User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value">Hello @User.Identity.Name!</a>
+            } else {
+                <div>Hello @User.Identity.Name!</div>
+            }
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">

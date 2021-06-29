@@ -1,0 +1,27 @@
+﻿@page "/Model/{id}"
+@model ModelAgency.Web.Areas.Model.Pages.Profile.IndexModel
+@inject UserManager<ModelAgency.Web.Data.Entities.ApplicationUser> userManager
+@{
+    ViewData["Title"] = Model.Model.Name;
+}
+
+@if (User.IsInRole("Admin") || userManager.GetUserId(User) == Model.Model.Id) {
+                <a asp-area="Model" asp-page="Profile/Edit" asp-route-id="@Model.Model.Id">Edit</a>
+            }
+
+<div>
+    <label asp-for="Model.Name"></label>
+    @Model.Model.Name
+</div>
+<div>
+    <label asp-for="Model.DOB"></label>
+    @Model.Model.DOB.ToShortDateString() 
+</div>
+@foreach(var photo in Model.Model.Photos) {
+                <img src="@photo.Path" alt="photo"/>
+            }
+@foreach(var ev in Model.Events) {
+    <div>
+        @ev.Name
+    </div>
+        }

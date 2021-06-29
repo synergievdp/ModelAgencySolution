@@ -24,7 +24,7 @@ namespace ModelAgency.Web.Areas.Identity {
             var id = context.User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier);
             if (id == null)
                 return Task.CompletedTask;
-            if (httpContext.HttpContext.Request.Query["id"] == id.Value)
+            if (httpContext.HttpContext.Request.RouteValues["id"].ToString() == id.Value)
                 context.Succeed(requirement);
             return Task.CompletedTask;
         }
