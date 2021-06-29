@@ -1,0 +1,58 @@
+﻿@page "/Customer/{id}/Events/Details/{eventid}"
+@model ModelAgency.Web.Areas.Customer.Pages.Events.DetailsModel
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div>@Model.Event.Name</div>
+<div>@Model.Event.EventType</div>
+<div>@Model.Event.Private</div>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Organizer</th>
+        <th>Model</th>
+    </tr>
+    @foreach (var invite in Model.Event.Invites) {
+        <tr>
+            <td>@invite.Model.Name</td>
+            @if (invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending) {
+                <td>
+                    <form asp-page-handler="accept" method="post">
+                        <input type="hidden" name="modelid" value="@invite.ModelId" />
+                        <button class="btn btn-primary">Accept</button>
+                    </form>
+                </td>
+            } else {
+                <td>@invite.OrganizerAccepted</td>
+            }
+            <td>@invite.InviteeAccepted</td>
+        </tr>
+    }
+</table>
+
+<table>
+    @foreach (var m in Model.Models) {
+        <tr>
+            <th>Model</th>
+            <th>Invited</th>
+        </tr>
+        <tr>
+            <td>
+                <a asp-page="/Profile" asp-route-id="@m.Id">@m.Name</a>
+            </td>
+            @if (Model.Event.Invites.Any(invite => invite.Model.Id == m.Id)) {
+                <td>Invited</td>
+            } else {
+                <td>
+                    <form asp-page-handler="invite" method="post">
+                        <input type="hidden" name="modelid" value="@m.Id" />
+                        <button class="btn btn-primary">Invite</button>
+                    </form>
+                </td>
+                }
+
+       </tr>
+    }
+</table>
