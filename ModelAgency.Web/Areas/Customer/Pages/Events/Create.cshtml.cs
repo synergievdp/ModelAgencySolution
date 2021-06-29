@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 
 namespace ModelAgency.Web.Areas.Customer.Pages.Events
 {
     [Authorize(Policy = "PageOwner")]
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ICustomerRepository customers;
 
         public string Id { get; set; }
         [BindProperty]
@@ -27,8 +29,8 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
             public bool Private { get; set; }
         }
 
-        public CreateModel(ApplicationDbContext dbContext) {
-            this.dbContext = dbContext;
+        public CreateModel(ICustomerRepository customers) {
+            this.customers = customers;
         }
         public void OnGet(string id)
         {
@@ -36,7 +38,7 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
         }
 
         public IActionResult OnPost(string id) {
-            var customer = dbContext.Customers.FirstOrDefault(customer => customer.Id == id);
+            var customer = customers.GetById(id, customers => customers.Include(customer => customer.Events));
             if(customer != null) {
                 var ev = new Event() {
                     Name = Event.Name,
@@ -47,7 +49,7 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
                 if (customer.Events == null)
                     customer.Events = new();
                 customer.Events.Add(ev);
-                dbContext.SaveChanges();
+                customers.Update(customer);
 
                 return LocalRedirect($"/Customer/{id}/Events/Details/{ev.Id}");
             }

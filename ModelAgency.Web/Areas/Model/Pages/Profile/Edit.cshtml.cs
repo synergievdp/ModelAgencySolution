@@ -11,41 +11,40 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 
 namespace ModelAgency.Web.Areas.Model.Pages.Profile
 {
     [Authorize(Policy = "PageOwner")]
     public class EditModel : PageModel
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ModelRepository models;
         private readonly IWebHostEnvironment webHost;
 
         public ModelUser Model { get; set; }
 
-        public EditModel(ApplicationDbContext dbContext,
+        public EditModel(ModelRepository models,
             IWebHostEnvironment webHost) {
-            this.dbContext = dbContext;
+            this.models = models;
             this.webHost = webHost;
         }
 
         public IActionResult OnGet(string id)
         {
-            Model = dbContext.Models
-                .Include(model => model.Photos)
-                .FirstOrDefault(model => model.Id == id);
+            Model = models.GetById(id, models => models.Include(model => model.Photos));
             if(Model == null) {
                 return NotFound();
             }
             return Page();
         }
-        
+
         public class ModelModel {
             public string Name { get; set; }
             public DateTime DOB { get; set; }
         }
 
         public IActionResult OnPost(string id, ModelModel model) {
-            var dbModel = dbContext.Models.FirstOrDefault(dbm => dbm.Id == id);
+            var dbModel = models.GetById(id);
 
             if (dbModel == null)
                 return NotFound();
@@ -53,14 +52,12 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
             dbModel.Name = model.Name;
             dbModel.DOB = model.DOB;
 
-            dbContext.SaveChanges();
+            models.Update(dbModel);
             return LocalRedirect($"/Model/{id}/Profile/Edit");
         }
 
         public IActionResult OnPostAddPhotos(string id, List<IFormFile> photos) {
-            var dbModel = dbContext.Models
-                .Include(model => model.Photos)
-                .FirstOrDefault(model => model.Id == id);
+            var dbModel = models.GetById(id, models => models.Include(model => model.Photos));
 
             if (dbModel == null)
                 return NotFound();
@@ -77,14 +74,12 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
                     photo.CopyTo(file);
                 }
             }
-            dbContext.SaveChanges();
+            models.Update(dbModel);
             return LocalRedirect($"/Model/{id}/Profile/Edit");
         }
 
         public IActionResult OnPostDelete(string id, int photoId) {
-            var dbModel = dbContext.Models
-                .Include(model => model.Photos)
-                .FirstOrDefault(model => model.Id == id);
+            var dbModel = models.GetById(id, models => models.Include(model => model.Photos));
 
             if (dbModel == null)
                 return NotFound();
@@ -96,7 +91,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
 
             System.IO.File.Delete(Path.Combine(webHost.WebRootPath, photo.Path));
             dbModel.Photos.Remove(photo);
-            dbContext.SaveChanges();
+            models.Update(dbModel);
 
             return LocalRedirect($"/Model/{id}/Profile/Edit");
         }

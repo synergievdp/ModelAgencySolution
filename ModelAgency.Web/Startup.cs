@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using ModelAgency.Web.Areas.Identity;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,9 @@ namespace ModelAgency.Web {
             services.AddRazorPages();
 
             services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+            services.AddScoped<IModelRepository, ModelRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             services.Configure<IdentityOptions>(options => {
                 options.Password.RequireDigit = false;

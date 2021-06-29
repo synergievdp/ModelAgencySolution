@@ -8,26 +8,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 
 namespace ModelAgency.Web.Areas.Model.Pages.Profile
 {
     [Authorize(Policy = "ApprovedOrOwner")]
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ModelRepository models;
 
         public ModelUser Model { get; set; }
         public List<Event> Events { get; set; }
 
-        public IndexModel(ApplicationDbContext dbContext) {
-            this.dbContext = dbContext;
+        public IndexModel(ModelRepository models) {
+            this.models = models;
         }
         public IActionResult OnGet(string id)
         {
-            Model = dbContext.Models
+            Model = models.GetById(id, models => models
                 .Include(model => model.Photos)
                 .Include(model => model.Invites)
-                .FirstOrDefault(model => model.Id == id);
+                .ThenInclude(invite => invite.Event));
 
             if (Model == null)
                 return NotFound();

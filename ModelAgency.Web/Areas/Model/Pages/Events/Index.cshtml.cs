@@ -8,34 +8,36 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 
 namespace ModelAgency.Web.Areas.Model.Pages.Events
 {
     [Authorize(Policy = "PageOwner")]
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly IModelRepository models;
+        private readonly IEventRepository events;
 
         [BindProperty(SupportsGet = true)]
         public string Id { get; set; }
         public List<Event> Events { get; set; }
         public List<Invite> Invites { get; set; }
 
-        public IndexModel(ApplicationDbContext dbContext) {
-            this.dbContext = dbContext;
+        public IndexModel(IModelRepository models, IEventRepository events) {
+            this.models = models;
+            this.events = events;
         }
-        public void OnGet(string id)
-        {
-            var model = dbContext.Models.Include(model => model.Invites).ThenInclude(invite => invite.Event).FirstOrDefault(model => model.Id == id);
-            if (model != null) {
-                Events = dbContext.Events.Include(ev => ev.Invites).Where(ev => ev.Private == false).ToList();
+        public void OnGet(string id) { 
+            var model = models.GetById(id, models => models.Include(model => model.Invites).ThenInclude(invite => invite.Event));
+            if(model != null) {
+                Events = events.Get(ev => ev.Private == false, events => events.Include(ev => ev.Invites)).ToList();
                 Invites = model.Invites.Where(invite => invite.InviteeAccepted == InviteState.Pending).ToList();
             }
         }
 
         public IActionResult OnPostSignUp(string id, int eventid) {
-            var ev = dbContext.Events.Include(ev => ev.Invites).FirstOrDefault(ev => ev.Id == eventid);
-            var model = dbContext.Models.Include(model => model.Invites).FirstOrDefault(model => model.Id == id);
+            var ev = events.GetById(eventid, events => events.Include(ev => ev.Invites));
+            var model = models.GetById(id);
 
             if (model != null && ev != null) {
                 Invite invite = new() {
@@ -45,7 +47,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Events
                 if (ev.Invites == null)
                     ev.Invites = new();
                 ev.Invites.Add(invite);
-                dbContext.SaveChanges();
+                events.Update(ev);
             }
 
             return RedirectToPage($"/Model/{id}/Events/Index");
