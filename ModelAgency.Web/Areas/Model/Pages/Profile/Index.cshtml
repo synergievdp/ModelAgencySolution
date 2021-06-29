@@ -1,4 +1,4 @@
-﻿@page "/Model/{id}"
+﻿@page "/Model/{id}/Profile/Index"
 @model ModelAgency.Web.Areas.Model.Pages.Profile.IndexModel
 @inject UserManager<ModelAgency.Web.Data.Entities.ApplicationUser> userManager
 @{
@@ -6,7 +6,7 @@
 }
 
 @if (User.IsInRole("Admin") || userManager.GetUserId(User) == Model.Model.Id) {
-                <a asp-area="Model" asp-page="Profile/Edit" asp-route-id="@Model.Model.Id">Edit</a>
+                <a asp-area="Model" asp-page="/Profile/Edit" asp-route-id="@Model.Model.Id">Edit</a>
             }
 
 <div>

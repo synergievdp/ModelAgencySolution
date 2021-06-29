@@ -19,7 +19,9 @@
 
     @foreach (var user in Model.Models) {
         @foreach (var photo in user.Photos) {
-            <a asp-area="Model" asp-page="/Profile" asp-route-id="@user.Id"><img src="/@photo.Path" alt="image" /></a>
+            <a asp-area="Model" asp-page="/Profile/Index" asp-route-id="@user.Id">
+                <img src="/@photo.Path" alt="image" />
+            </a>
         }
     }
 </div>
