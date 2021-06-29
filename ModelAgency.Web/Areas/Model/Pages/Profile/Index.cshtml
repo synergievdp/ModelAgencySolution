@@ -18,7 +18,7 @@
     @Model.Model.DOB.ToShortDateString() 
 </div>
 @foreach(var photo in Model.Model.Photos) {
-                <img src="@photo.Path" alt="photo"/>
+                <img src="/@photo.Path" alt="photo"/>
             }
 @foreach(var ev in Model.Events) {
     <div>

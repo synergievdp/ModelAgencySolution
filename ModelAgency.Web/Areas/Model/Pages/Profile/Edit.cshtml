@@ -21,7 +21,7 @@
 <a asp-area="Model" asp-page="Events/Index" asp-route-id="@Model.Model.Id">Manage Events</a>
 
 @foreach (var photo in Model.Model.Photos) {
-    <img src="@photo.Path" />
+    <img src="/@photo.Path" />
     <form method="post" asp-page-handler="delete">
         <input type="hidden" name="photoid" value="@photo.Id" />
         <button type="submit" class="btn btn-primary">Delete</button>
