@@ -3,10 +3,12 @@ using ModelAgency.Web.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ModelAgency.Web.Data.Repositories {
     public interface IEventRepository : IGenericRepository<Event> {
-        public Event GetById(int id, Func<IQueryable<Event>, IIncludableQueryable<Event, object>> includes = null);
+        public Event Get(Expression<Func<Event, bool>> filter = null, bool invites = false);
+        public IEnumerable<Event> GetAll(Expression<Func<Event, bool>> filter = null, bool invites = false);
     }
 }

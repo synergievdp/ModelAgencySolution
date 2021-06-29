@@ -15,7 +15,7 @@ namespace ModelAgency.Web.Data.Repositories {
             this.dbContext = dbContext;
             table = dbContext.Set<T>();
         }
-        public IEnumerable<T> Get(
+        protected IEnumerable<T> Get(
             Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null) {

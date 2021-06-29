@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
 using ModelAgency.Web.Data.Repositories;
 
-namespace ModelAgency.Web.Areas.Customer.Pages.Events
-{
+namespace ModelAgency.Web.Areas.Customer.Pages.Events {
     [Authorize(Policy = "PageOwner")]
     public class DetailsModel : PageModel
     {
@@ -27,12 +23,12 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
         }
         public void OnGet(string id, int eventid)
         {
-            Event = events.GetById(eventid, events => events.Include(ev => ev.Invites));
-            Models = models.Get(model => model.AccountState == AccountState.Approved, models => models.Include(model => model.Invites)).ToList();
+            Event = events.Get(ev => ev.Id == eventid, invites: true);
+            Models = models.GetAll(model => model.AccountState == AccountState.Approved, invites: true).ToList();
         }
 
         public IActionResult OnPostAccept(string id, int eventid, string modelid) {
-            var ev = events.GetById(eventid, events => events.Include(ev => ev.Invites));
+            var ev = events.Get(ev => ev.Id == eventid, invites: true);
             if (ev != null) {
                 var invite = ev.Invites.FirstOrDefault(invite => invite.ModelId == modelid);
                 if (invite != null) {
@@ -44,8 +40,8 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
         }
 
         public IActionResult OnPostInvite(string id, int eventid, string modelid) {
-            var model = models.GetById(id);
-            var ev = events.GetById(eventid, events => events.Include(ev => ev.Invites));
+            var model = models.Get(model => model.Id == id);
+            var ev = events.Get(ev => ev.Id == eventid, invites: true);
             if (model != null && ev != null) {
                 Invite invite = new() {
                     Model = model,

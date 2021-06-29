@@ -38,7 +38,7 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
         }
 
         public IActionResult OnPost(string id) {
-            var customer = customers.GetById(id, customers => customers.Include(customer => customer.Events));
+            var customer = customers.Get(customer => customer.Id == id, events: true);
             if(customer != null) {
                 var ev = new Event() {
                     Name = Event.Name,

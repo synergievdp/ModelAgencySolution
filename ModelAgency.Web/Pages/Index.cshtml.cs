@@ -24,7 +24,7 @@ namespace ModelAgency.Web.Pages {
         }
 
         public void OnGet() {
-            Models = models.Get(model => model.AccountState == AccountState.Approved, models => models.Include(model => model.Photos)).ToList();
+            Models = models.GetAll(model => model.AccountState == AccountState.Approved, photos: true).ToList();
         }
     }
 }

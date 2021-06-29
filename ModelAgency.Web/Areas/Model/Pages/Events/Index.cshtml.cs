@@ -28,16 +28,16 @@ namespace ModelAgency.Web.Areas.Model.Pages.Events
             this.events = events;
         }
         public void OnGet(string id) { 
-            var model = models.GetById(id, models => models.Include(model => model.Invites).ThenInclude(invite => invite.Event));
+            var model = models.Get(model => model.Id == id, invites: true);
             if(model != null) {
-                Events = events.Get(ev => ev.Private == false, events => events.Include(ev => ev.Invites)).ToList();
+                Events = events.GetAll(ev => ev.Private == false, invites: true).ToList();
                 Invites = model.Invites.Where(invite => invite.InviteeAccepted == InviteState.Pending).ToList();
             }
         }
 
         public IActionResult OnPostSignUp(string id, int eventid) {
-            var ev = events.GetById(eventid, events => events.Include(ev => ev.Invites));
-            var model = models.GetById(id);
+            var ev = events.Get(ev => ev.Id == eventid, invites: true);
+            var model = models.Get(model => model.Id == id);
 
             if (model != null && ev != null) {
                 Invite invite = new() {

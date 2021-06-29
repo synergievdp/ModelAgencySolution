@@ -23,7 +23,7 @@ namespace ModelAgency.Web.Areas.Customer.Pages.Events
         }
         public void OnGet(string id)
         {
-            var customer = customers.GetById(id, customers => customers.Include(customer => customer.Events).ThenInclude(ev => ev.Invites));
+            var customer = customers.Get(customer => customer.Id == id, events: true);
             if(customer != null) {
                 Events = customer.Events;
             }

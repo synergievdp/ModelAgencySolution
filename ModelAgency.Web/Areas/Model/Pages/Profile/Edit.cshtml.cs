@@ -2,19 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using ModelAgency.Web.Data;
 using ModelAgency.Web.Data.Entities;
 using ModelAgency.Web.Data.Repositories;
 
-namespace ModelAgency.Web.Areas.Model.Pages.Profile
-{
+namespace ModelAgency.Web.Areas.Model.Pages.Profile {
     [Authorize(Policy = "PageOwner")]
     public class EditModel : PageModel
     {
@@ -31,7 +27,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
 
         public IActionResult OnGet(string id)
         {
-            Model = models.GetById(id, models => models.Include(model => model.Photos));
+            Model = models.Get(model => model.Id == id, photos: true);
             if(Model == null) {
                 return NotFound();
             }
@@ -44,7 +40,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
         }
 
         public IActionResult OnPost(string id, ModelModel model) {
-            var dbModel = models.GetById(id);
+            var dbModel = models.Get(model => model.Id == id);
 
             if (dbModel == null)
                 return NotFound();
@@ -57,7 +53,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
         }
 
         public IActionResult OnPostAddPhotos(string id, List<IFormFile> photos) {
-            var dbModel = models.GetById(id, models => models.Include(model => model.Photos));
+            var dbModel = models.Get(model => model.Id == id, photos: true);
 
             if (dbModel == null)
                 return NotFound();
@@ -79,7 +75,7 @@ namespace ModelAgency.Web.Areas.Model.Pages.Profile
         }
 
         public IActionResult OnPostDelete(string id, int photoId) {
-            var dbModel = models.GetById(id, models => models.Include(model => model.Photos));
+            var dbModel = models.Get(model => model.Id == id, photos: true);
 
             if (dbModel == null)
                 return NotFound();
