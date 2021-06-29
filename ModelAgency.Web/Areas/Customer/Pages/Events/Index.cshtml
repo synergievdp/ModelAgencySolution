@@ -20,10 +20,10 @@
                         @ev.Private
                     </td>
                     <td>
-                        @ev.Invites.Count(invite => invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending) invite(s) to be accepted.
+                        @ev.Invites.Count(invite => invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending)
                     </td>
                     <td>
-                        @ev.Invites.Count(invite => invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending) invite(s) waiting for response.
+                        @ev.Invites.Count(invite => invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending)
                     </td>
                 </tr>
             }

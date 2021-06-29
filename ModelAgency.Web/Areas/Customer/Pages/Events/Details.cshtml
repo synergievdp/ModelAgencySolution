@@ -16,7 +16,7 @@
     </tr>
     @foreach (var invite in Model.Event.Invites) {
         <tr>
-            <td>@invite.Model.Name</td>
+            <td><a asp-area="Model" asp-page="/Profile/Index" asp-route-id="@invite.Model.Id">@invite.Model.Name</a></td>
             @if (invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending) {
                 <td>
                     <form asp-page-handler="accept" method="post">
@@ -33,14 +33,14 @@
 </table>
 
 <table>
+    <tr>
+        <th>Model</th>
+        <th>Invited</th>
+    </tr>
     @foreach (var m in Model.Models) {
         <tr>
-            <th>Model</th>
-            <th>Invited</th>
-        </tr>
-        <tr>
             <td>
-                <a asp-page="/Profile" asp-route-id="@m.Id">@m.Name</a>
+                <a asp-area="Model" asp-page="/Profile/Index" asp-route-id="@m.Id">@m.Name</a>
             </td>
             @if (Model.Event.Invites.Any(invite => invite.Model.Id == m.Id)) {
                 <td>Invited</td>
@@ -51,8 +51,8 @@
                         <button class="btn btn-primary">Invite</button>
                     </form>
                 </td>
-                }
+            }
 
-       </tr>
+        </tr>
     }
 </table>
