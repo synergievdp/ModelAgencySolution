@@ -111,6 +111,7 @@ namespace ModelAgency.Web.Areas.Identity.Pages.Account
                         Directory.CreateDirectory(dir);
                     var relative = Path.Combine(relativedir, Input.Logo.FileName);
                     var path = Path.Combine(webHost.WebRootPath, relative);
+                    user.LogoPath = relative;
                     using (var file = System.IO.File.Create(path)) {
                         Input.Logo.CopyTo(file);
                     }
