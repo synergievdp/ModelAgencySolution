@@ -12,5 +12,6 @@ namespace ModelAgency.Web.Data.Entities {
         public string KvK { get; set; }
         public string BTW { get; set; }
         public string LogoPath { get; set; }
+        public List<Event> Events { get; set; }
     }
 }

@@ -1,0 +1,54 @@
+﻿@page "/Model/{id}/Events/Index"
+@model ModelAgency.Web.Areas.Model.Pages.Events.IndexModel
+@{
+    ViewData["Title"] = "Events";
+}
+
+<table>
+    <tr>
+        <th>Event</th>
+        <th>Organizer</th>
+        <th>Model</th>
+    </tr>
+    @foreach (var invite in Model.Invites) {
+<tr>
+    <td>
+        @invite.Event.Name
+    </td>
+    <td>@invite.OrganizerAccepted</td>
+    @if (invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending) {
+        <td>
+            <form asp-page-handler="accept" method="post">
+                <input type="hidden" name="eventid" value="@invite.EventId" />
+                <button class="btn btn-primary">Accept</button>
+            </form>
+        </td>
+    } else {
+        <td>@invite.InviteeAccepted</td>
+    }
+</tr>
+    }
+</table>
+
+<table>
+    <tr>
+        <th>
+            Open Events
+        </th>
+    </tr>
+    @foreach (var ev in Model.Events) {
+        <tr>
+            <td>@ev.Name</td>
+            @if (ev.Invites.Any(invite => invite.ModelId == Model.Id)) {
+                    <td>Signed Up</td>
+            } else {
+                <td>
+                    <form asp-page-handler="signup" method="post">
+                        <input type="hidden" name="eventid" value="@ev.Id" />
+                        <button class="btn btn-primary">Sign up</button>
+                    </form>
+                </td>
+            }
+        </tr>
+    }
+</table>
