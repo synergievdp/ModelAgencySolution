@@ -59,7 +59,7 @@ namespace ModelAgency.Web {
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UserManager<ApplicationUser> userManager) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
@@ -75,6 +75,7 @@ namespace ModelAgency.Web {
             app.UseRouting();
 
             app.UseAuthentication();
+            DataInitializer.SeedData(userManager);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {
