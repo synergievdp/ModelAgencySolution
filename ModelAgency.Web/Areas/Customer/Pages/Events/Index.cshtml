@@ -1,0 +1,30 @@
+﻿@page "/Customer/{id}/Events"
+@model ModelAgency.Web.Areas.Customer.Pages.Events.IndexModel
+@{
+    ViewData["Title"] = "Events";
+}
+
+<table>
+    <tr>
+        <th>Event</th>
+        <th>Private</th>
+        <th>To Be Accepted</th>
+        <th>Pending</th>
+    </tr>
+    @foreach(var ev in Model.Events) {
+                <tr>
+                    <td>
+                    <a class="nav-link text-dark" asp-area="Customer" asp-page="/Events/Details" asp-route-id="@Model.Id" asp-route-eventid="@ev.Id">@ev.Name</a>
+                    </td>
+                    <td>
+                        @ev.Private
+                    </td>
+                    <td>
+                        @ev.Invites.Count(invite => invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending)
+                    </td>
+                    <td>
+                        @ev.Invites.Count(invite => invite.OrganizerAccepted == ModelAgency.Web.Data.Entities.InviteState.Accepted && invite.InviteeAccepted == ModelAgency.Web.Data.Entities.InviteState.Pending)
+                    </td>
+                </tr>
+            }
+</table>

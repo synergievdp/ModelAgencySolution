@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,10 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ModelAgency.Web.Areas.Identity;
 using ModelAgency.Web.Data;
+using ModelAgency.Web.Data.Entities;
+using ModelAgency.Web.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ModelAgency.Web {
@@ -27,13 +32,34 @@ namespace ModelAgency.Web {
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
+
+            services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+            services.AddScoped<IModelRepository, ModelRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+            services.Configure<IdentityOptions>(options => {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+            });
+            services.AddAuthorization(options => {
+                options.AddPolicy("ApprovedUsers", policy => policy.RequireClaim("AccountState", "Approved"));
+                options.AddPolicy("PageOwner", policy => policy.Requirements.Add(new PageOwnerRequirement()));
+                options.AddPolicy("ApprovedOrOwner", policy => policy.Requirements.Add(new ApprovedOrOwnerRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, PageOwnerHandler>();
+            services.AddSingleton<IAuthorizationHandler, ApprovedOrOwnerHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UserManager<ApplicationUser> userManager) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
@@ -49,6 +75,7 @@ namespace ModelAgency.Web {
             app.UseRouting();
 
             app.UseAuthentication();
+            DataInitializer.SeedData(userManager);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {

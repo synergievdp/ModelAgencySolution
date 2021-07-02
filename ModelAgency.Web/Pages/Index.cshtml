@@ -1,10 +1,27 @@
 ﻿@page
 @model IndexModel
+@inject UserManager<ModelAgency.Web.Data.Entities.ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Home page";
+    var id = UserManager.GetUserId(User);
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @if (User.IsInRole("Admin")) {
+        <a class="nav-link text-dark" asp-area="Admin" asp-page="/Approvals">Approvals</a>
+    } else if (User.IsInRole("Customer")) {
+        <a class="nav-link text-dark" asp-area="Customer" asp-page="/Events/Index" asp-route-id="@id">Events</a>
+        <a class="nav-link text-dark" asp-area="Customer" asp-page="/Events/Create" asp-route-id="@id">Create new event</a>
+    } else if (User.IsInRole("Model")) {
+        <a class="nav-link text-dark" asp-area="Model" asp-page="/Events/Index" asp-route-id="@id">Events</a>
+    }
+
+    @foreach (var user in Model.Models) {
+        @foreach (var photo in user.Photos) {
+            <a asp-area="Model" asp-page="/Profile/Index" asp-route-id="@user.Id">
+                <img src="/@photo.Path" alt="image" />
+            </a>
+        }
+    }
 </div>
